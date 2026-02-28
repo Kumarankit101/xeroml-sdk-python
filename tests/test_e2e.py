@@ -40,16 +40,13 @@ def test_session_workflow(client: XeroML):
 
 @pytest.mark.e2e
 def test_get_usage(client: XeroML):
-    # NOTE: The SDK UsageInfo model is out of sync with the API response.
-    # The API returns {"credits": {"used":..., "total":..., "remaining":...}, ...}
-    # but UsageInfo expects credits_used, credits_total, plan (flat fields).
-    # We test the raw HTTP call to verify the API works, and document the SDK bug.
-    res = client._request("GET", "/v1/usage")
-    data = res.json()
-    assert "credits" in data, "response should contain 'credits' key"
-    assert isinstance(data["credits"]["used"], int), "credits.used should be an int"
-    assert isinstance(data["credits"]["total"], int), "credits.total should be an int"
-    assert isinstance(data["credits"]["remaining"], int), "credits.remaining should be an int"
+    usage = client.get_usage()
+    assert isinstance(usage.credits.used, int), "credits.used should be an int"
+    assert isinstance(usage.credits.total, int), "credits.total should be an int"
+    assert isinstance(usage.credits.remaining, int), "credits.remaining should be an int"
+    assert usage.tier, "tier should be non-empty"
+    assert isinstance(usage.rate_limit, int), "rate_limit should be an int"
+    assert isinstance(usage.usage, list), "usage should be a list"
 
 
 @pytest.mark.e2e

@@ -79,6 +79,7 @@ class UsageMonth(BaseModel):
     parse_calls: int
     drift_checks: int
     session_creates: int
+    total_latency_ms: int = 0
 
 
 class UsageInfo(BaseModel):

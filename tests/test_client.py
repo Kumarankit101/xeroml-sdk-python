@@ -66,7 +66,7 @@ SAMPLE_USAGE_RESPONSE = {
     "tier": "free",
     "rate_limit": 100,
     "usage": [
-        {"month": "2026-02-01", "parse_calls": 42, "drift_checks": 0, "session_creates": 5},
+        {"month": "2026-02-01", "parse_calls": 42, "drift_checks": 0, "session_creates": 5, "total_latency_ms": 1200},
     ],
 }
 
