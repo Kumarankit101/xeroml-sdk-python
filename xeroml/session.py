@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from .types import DriftReport, IntentGraph
+from .types import DriftReport, IntentGraph, SessionHistoryResponse
 
 if TYPE_CHECKING:
     from .async_client import AsyncXeroML
@@ -35,7 +35,7 @@ class Session:
         self._request(
             "POST",
             f"/v1/sessions/{self.session_id}/update",
-            json={"response": response, "role": role},
+            json={"message": response, "role": role},
         )
 
     def check_drift(self) -> DriftReport:
@@ -46,6 +46,10 @@ class Session:
         res = self._request("GET", f"/v1/sessions/{self.session_id}/graph")
         data = res.json()
         return IntentGraph(**data.get("graph", data))
+
+    def get_history(self) -> SessionHistoryResponse:
+        res = self._request("GET", f"/v1/sessions/{self.session_id}/history")
+        return SessionHistoryResponse(**res.json())
 
     def end(self) -> None:
         self._request("POST", f"/v1/sessions/{self.session_id}/end", json={})
@@ -73,7 +77,7 @@ class AsyncSession:
         await self._request(
             "POST",
             f"/v1/sessions/{self.session_id}/update",
-            json={"response": response, "role": role},
+            json={"message": response, "role": role},
         )
 
     async def check_drift(self) -> DriftReport:
@@ -84,6 +88,10 @@ class AsyncSession:
         res = await self._request("GET", f"/v1/sessions/{self.session_id}/graph")
         data = res.json()
         return IntentGraph(**data.get("graph", data))
+
+    async def get_history(self) -> SessionHistoryResponse:
+        res = await self._request("GET", f"/v1/sessions/{self.session_id}/history")
+        return SessionHistoryResponse(**res.json())
 
     async def end(self) -> None:
         await self._request("POST", f"/v1/sessions/{self.session_id}/end", json={})

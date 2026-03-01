@@ -87,3 +87,33 @@ class UsageInfo(BaseModel):
     tier: str
     rate_limit: int
     usage: list[UsageMonth] = []
+
+
+class GraphTurn(BaseModel):
+    turn_number: int
+    graph: IntentGraph
+    root_goal: str
+    confidence: float
+    sub_goal_count: int
+    provider: str
+    latency_ms: int
+    created_at: str
+
+
+class DriftEvent(BaseModel):
+    turn_number: int
+    drift_type: str
+    severity: float
+    description: str
+    previous_goal: str | None = None
+    current_goal: str | None = None
+    created_at: str
+
+
+class SessionHistoryResponse(BaseModel):
+    session_id: str
+    status: str
+    turn_count: int
+    current_graph: IntentGraph | None = None
+    graphs: list[GraphTurn] = []
+    drift_events: list[DriftEvent] = []
