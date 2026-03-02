@@ -1,47 +1,67 @@
-"""XeroML SDK types — mirrors the API Pydantic models exactly."""
+"""XeroML SDK types — mirrors the API Pydantic models (v3 / 0.3.0)."""
 
 from __future__ import annotations
+
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 
-class LatentStates(BaseModel):
-    goal_intent: str
-    action_readiness: str = Field(pattern=r"^(exploring|deciding|executing)$")
-    ambiguity_level: str = Field(pattern=r"^(clear|partial|conflicting)$")
-    risk_sensitivity: str = Field(pattern=r"^(low|medium|high)$")
-    intent_scope: str = Field(pattern=r"^(single|compound|multi_step)$")
+class Constraint(BaseModel):
+    text: str
+    source: Literal["stated", "assumed"] = "stated"
+    turn: int = 1
 
 
-class IntentMeta(BaseModel):
-    source: str = "user_input"
-    confidence: float = Field(ge=0.0, le=1.0)
-    negotiation_history: list[str] = []
-    latent_states: LatentStates
+class SuccessCriterion(BaseModel):
+    text: str
+    source: Literal["stated", "assumed"] = "stated"
+    turn: int = 1
 
 
-class SubGoal(BaseModel):
+class Unknown(BaseModel):
+    question: str
+    impact: Literal["high", "medium", "low"] = "medium"
+
+
+class Goal(BaseModel):
     id: str
-    goal: str
-    status: str = Field(
-        default="pending",
-        pattern=r"^(pending|active|done|blocked|abandoned|background)$",
-    )
-    priority: float = Field(ge=0.0, le=1.0)
-    success_criteria: list[str] = []
-    constraints: list[str] = []
-    uncertainty: float = Field(ge=0.0, le=1.0, default=0.5)
-    context_requirements: list[str] = []
-    modality: str = "text"
-    dependencies: list[str] = []
-    children: list[SubGoal] = []
+    objective: str
+    status: Literal["pending", "active", "done", "blocked", "abandoned"] = "pending"
+    depends_on: list[str] = []
+    constraints: list[Constraint] = []
+    success_criteria: list[SuccessCriterion] = []
+    unknowns: list[Unknown] = []
+    outcome: str | None = None
+
+
+class HistoryEntry(BaseModel):
+    turn: int
+    type: Literal["created", "refinement", "correction", "pivot", "goal_added", "goal_done"]
+    detail: str
+
+
+class IntentContext(BaseModel):
+    motivation: str | None = None
+    background: str | None = None
 
 
 class IntentGraph(BaseModel):
-    schema_version: str = "0.1.0"
-    root_goal: str
-    sub_goals: list[SubGoal]
-    meta: IntentMeta
+    v: str = "0.3.0"
+    directive: str
+    objective: str
+    type: Literal["build", "fix", "explain", "explore", "decide", "action"]
+    confidence: float = Field(ge=0.0, le=1.0)
+    phase: Literal["clarifying", "planning", "executing", "done"] = "clarifying"
+    urgency: Literal["low", "normal", "high", "critical"] = "normal"
+    context: IntentContext = IntentContext()
+    constraints: list[Constraint] = []
+    rejected: list[str] = []
+    implicit: list[str] = []
+    success_criteria: list[SuccessCriterion] = []
+    unknowns: list[Unknown] = []
+    goals: list[Goal] = []
+    history: list[HistoryEntry] = []
 
 
 class ParseResponse(BaseModel):

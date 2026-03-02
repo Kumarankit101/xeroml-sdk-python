@@ -22,35 +22,21 @@ from xeroml import (
 # ---------------------------------------------------------------------------
 
 SAMPLE_GRAPH = {
-    "schema_version": "0.1.0",
-    "root_goal": "Refactor auth module",
-    "sub_goals": [
-        {
-            "id": "sg_001",
-            "goal": "Add OAuth2 support",
-            "status": "pending",
-            "priority": 0.9,
-            "success_criteria": ["OAuth2 flow works"],
-            "constraints": [],
-            "uncertainty": 0.3,
-            "context_requirements": [],
-            "modality": "code",
-            "dependencies": [],
-            "children": [],
-        }
-    ],
-    "meta": {
-        "source": "user_input",
-        "confidence": 0.85,
-        "negotiation_history": [],
-        "latent_states": {
-            "goal_intent": "refactoring",
-            "action_readiness": "executing",
-            "ambiguity_level": "clear",
-            "risk_sensitivity": "medium",
-            "intent_scope": "compound",
-        },
-    },
+    "v": "0.3.0",
+    "directive": "Refactor the auth module to support OAuth2",
+    "objective": "Refactor auth module",
+    "type": "build",
+    "confidence": 0.79,
+    "phase": "planning",
+    "urgency": "normal",
+    "context": {"motivation": "security improvement", "background": None},
+    "constraints": [{"text": "Must support OAuth2", "source": "stated", "turn": 1}],
+    "rejected": [],
+    "implicit": ["backward compatibility with existing sessions"],
+    "success_criteria": [{"text": "OAuth2 flow works end-to-end", "source": "stated", "turn": 1}],
+    "unknowns": [{"question": "Which OAuth2 provider?", "impact": "high"}],
+    "goals": [],
+    "history": [{"turn": 1, "type": "created", "detail": "User wants to refactor auth module"}],
 }
 
 SAMPLE_PARSE_RESPONSE = {
@@ -105,9 +91,10 @@ class TestXeroMLSync:
         mock_req.assert_called_once_with(
             "POST", "/v1/parse", json={"message": "Refactor auth module"}
         )
-        assert graph.root_goal == "Refactor auth module"
-        assert len(graph.sub_goals) == 1
-        assert graph.meta.confidence == 0.85
+        assert graph.objective == "Refactor auth module"
+        assert graph.directive == "Refactor the auth module to support OAuth2"
+        assert graph.confidence == 0.79
+        assert graph.v == "0.3.0"
 
     def test_parse_with_provider(self):
         client = XeroML(api_key="xml_test_abc123")
@@ -197,7 +184,8 @@ class TestSession:
             session = client.create_session()
             graph = session.parse("Refactor auth module")
 
-        assert graph.root_goal == "Refactor auth module"
+        assert graph.objective == "Refactor auth module"
+        assert graph.v == "0.3.0"
 
     def test_session_update(self):
         client = XeroML(api_key="xml_test_abc123")
@@ -212,7 +200,7 @@ class TestSession:
 
         call_args = mock_req.call_args_list[1]
         assert call_args[0] == ("POST", "/v1/sessions/sess_test123/update")
-        assert call_args[1]["json"]["response"] == "Here is the refactored code..."
+        assert call_args[1]["json"]["message"] == "Here is the refactored code..."
         assert call_args[1]["json"]["role"] == "assistant"
 
     def test_session_check_drift(self):
@@ -237,7 +225,8 @@ class TestSession:
             session = client.create_session()
             graph = session.get_graph()
 
-        assert graph.root_goal == "Refactor auth module"
+        assert graph.objective == "Refactor auth module"
+        assert graph.v == "0.3.0"
 
     def test_session_end(self):
         client = XeroML(api_key="xml_test_abc123")
@@ -363,7 +352,8 @@ class TestAsyncXeroML:
         mock_req.assert_called_once_with(
             "POST", "/v1/parse", json={"message": "Refactor auth module"}
         )
-        assert graph.root_goal == "Refactor auth module"
+        assert graph.objective == "Refactor auth module"
+        assert graph.v == "0.3.0"
 
     @pytest.mark.asyncio
     async def test_async_create_session(self):

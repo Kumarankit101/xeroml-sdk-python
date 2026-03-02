@@ -18,9 +18,13 @@ def client():
 @pytest.mark.e2e
 def test_parse(client: XeroML):
     graph = client.parse("Help me plan a trip to Tokyo")
-    assert graph.root_goal, "root_goal should be non-empty"
-    assert len(graph.sub_goals) > 0, "sub_goals should have at least one item"
-    assert graph.meta.confidence > 0, "confidence should be greater than 0"
+    assert graph.v == "0.3.0", "v should be 0.3.0"
+    assert graph.objective, "objective should be non-empty"
+    assert graph.directive, "directive should be non-empty"
+    assert graph.type, "type should be set"
+    assert graph.confidence > 0, "confidence should be greater than 0"
+    assert graph.phase, "phase should be set"
+    assert len(graph.history) > 0, "history should have at least one entry"
 
 
 @pytest.mark.e2e
@@ -29,11 +33,12 @@ def test_session_workflow(client: XeroML):
     assert session.session_id, "session_id should be non-empty"
 
     graph = session.parse("Build a REST API")
-    assert graph.root_goal, "session parse should return a root_goal"
-    assert len(graph.sub_goals) > 0, "session parse should return sub_goals"
+    assert graph.objective, "session parse should return an objective"
+    assert graph.directive, "session parse should return a directive"
+    assert graph.v == "0.3.0", "v should be 0.3.0"
 
     graph2 = session.get_graph()
-    assert graph2.root_goal, "get_graph should return a root_goal"
+    assert graph2.objective, "get_graph should return an objective"
 
     session.end()
 
