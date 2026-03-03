@@ -1,6 +1,6 @@
 [project]
 name = "xeroml-sdk"
-version = "0.1.1"
+version = "0.2.0"
 description = "XeroML Python SDK — intent parsing and drift detection for AI apps"
 readme = "README.md"
 requires-python = ">=3.10"
