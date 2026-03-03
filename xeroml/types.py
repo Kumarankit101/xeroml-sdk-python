@@ -1,4 +1,4 @@
-"""XeroML SDK types — mirrors the API Pydantic models (v3 / 0.3.0)."""
+"""XeroML SDK types — mirrors the API Pydantic models (v4 / 0.4.0)."""
 
 from __future__ import annotations
 
@@ -47,8 +47,9 @@ class IntentContext(BaseModel):
 
 
 class IntentGraph(BaseModel):
-    v: str = "0.3.0"
+    v: str = "0.4.0"
     directive: str
+    directive_source: Literal["computed", "llm"] = "computed"
     objective: str
     type: Literal["build", "fix", "explain", "explore", "decide", "action"]
     confidence: float = Field(ge=0.0, le=1.0)
@@ -76,8 +77,9 @@ class DriftReport(BaseModel):
     drift_type: str | None = None
     severity: float | None = None
     description: str | None = None
-    previous_goal: str | None = None
-    current_goal: str | None = None
+    initial_objective: str | None = None
+    previous_objective: str | None = None
+    current_objective: str | None = None
 
 
 class SessionInfo(BaseModel):
@@ -125,8 +127,9 @@ class DriftEvent(BaseModel):
     drift_type: str
     severity: float
     description: str
-    previous_goal: str | None = None
-    current_goal: str | None = None
+    initial_objective: str | None = None
+    previous_objective: str | None = None
+    current_objective: str | None = None
     created_at: str
 
 
